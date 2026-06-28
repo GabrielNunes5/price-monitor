@@ -1,5 +1,6 @@
 package com.example.price_monitor.dto.product;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -23,8 +24,10 @@ public class ProductRequestDto {
     private String productStore;
 
     @NotNull
+    @Min(1)
     private BigDecimal targetPrice;
 
     @NotNull
+    @Min(1)
     private BigDecimal currentPrice;
 }

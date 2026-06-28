@@ -10,15 +10,19 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 @Service
 public class ProductService {
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
+    private final PriceHistoryService priceHistoryService;
 
-    public ProductService(ProductRepository productRepository, ProductMapper productMapper) {
+    public ProductService(ProductRepository productRepository, ProductMapper productMapper, PriceHistoryService priceHistoryService) {
         this.productRepository = productRepository;
         this.productMapper = productMapper;
+        this.priceHistoryService = priceHistoryService;
     }
 
     public ProductResponseDto createProduct(ProductRequestDto req) {
@@ -36,6 +40,25 @@ public class ProductService {
         Product entity = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
         return productMapper.toResponse(entity);
+    }
+
+    public void changeProductStatus(String productId){
+        Product entity = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
+        entity.setActive(!entity.getActive());
+        productRepository.save(entity);
+    }
+
+    public void registerNewPrice(String productId, BigDecimal newPrice) {
+        Product entity = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
+
+        entity.setCurrentPrice(newPrice);
+        Product saved = productRepository.save(entity);
+
+        priceHistoryService.register(productId, newPrice);
+
+        productMapper.toResponse(saved);
     }
 
     public void deleteProduct(String productId) {

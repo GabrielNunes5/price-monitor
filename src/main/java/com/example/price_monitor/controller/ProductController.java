@@ -40,6 +40,12 @@ public class ProductController {
         return ResponseEntity.ok(new ApiResponse<>(response));
     }
 
+    @PatchMapping("/{productId}")
+    public ResponseEntity<Void> changeStatus(@PathVariable String productId){
+        productService.changeProductStatus(productId);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+    }
+
     @DeleteMapping("/{productId}")
     public ResponseEntity<Void> deleteProduct(@PathVariable String productId){
         productService.deleteProduct(productId);
